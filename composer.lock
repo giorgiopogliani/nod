@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "75c0a4f7947570d944c45fddf27f8605",
+    "content-hash": "9caf9c3f8e2e808bc7455e5ea12e09ef",
     "packages": [
         {
             "name": "brick/math",
@@ -1175,6 +1175,60 @@
                 "source": "https://github.com/laravel/framework"
             },
             "time": "2020-11-29T20:22:49+00:00"
+        },
+        {
+            "name": "illuminate/view",
+            "version": "v8.17.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/illuminate/view.git",
+                "reference": "696a1d6d2213be192429e97245a3d2bb4d6d1849"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/illuminate/view/zipball/696a1d6d2213be192429e97245a3d2bb4d6d1849",
+                "reference": "696a1d6d2213be192429e97245a3d2bb4d6d1849",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "illuminate/collections": "^8.0",
+                "illuminate/container": "^8.0",
+                "illuminate/contracts": "^8.0",
+                "illuminate/events": "^8.0",
+                "illuminate/filesystem": "^8.0",
+                "illuminate/macroable": "^8.0",
+                "illuminate/support": "^8.0",
+                "php": "^7.3|^8.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "8.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Illuminate\\View\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Taylor Otwell",
+                    "email": "taylor@laravel.com"
+                }
+            ],
+            "description": "The Illuminate View package.",
+            "homepage": "https://laravel.com",
+            "support": {
+                "issues": "https://github.com/laravel/framework/issues",
+                "source": "https://github.com/laravel/framework"
+            },
+            "time": "2020-11-02T14:01:41+00:00"
         },
         {
             "name": "jolicode/jolinotif",

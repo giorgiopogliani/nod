@@ -1,0 +1,68 @@
+server {
+    @if($ssl)
+    listen                  443 ssl http2;
+    listen                  [::]:443 ssl http2;
+    @else
+    listen                  80 http2;
+    listen                  [::]:80 http2;
+    @endif
+    server_name             {{ $hostname }};
+    root                    {{ $root }};
+
+    # SSL
+    @if($ssl)
+    ssl_certificate         /etc/letsencrypt/live/{{ $hostname }}/fullchain.pem;
+    ssl_certificate_key     /etc/letsencrypt/live/{{ $hostname }}/privkey.pem;
+    ssl_trusted_certificate /etc/letsencrypt/live/{{ $hostname }}/chain.pem;
+    @endif
+
+    # security
+    include                 globals/security.conf;
+
+    # index.php
+    index                   index.php;
+
+    # index.php fallback
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    # additional config
+    include globals/general.conf;
+
+    # handle .php
+    location ~ \.php$ {
+        include globals/php7.4_fastcgi.conf;
+    }
+}
+
+# subdomains redirect
+server {
+    listen                  443 ssl http2;
+    listen                  [::]:443 ssl http2;
+    server_name             *.{{ $hostname }};
+
+    # SSL
+    @if($ssl)
+    ssl_certificate         /etc/letsencrypt/live/{{ $hostname }}/fullchain.pem;
+    ssl_certificate_key     /etc/letsencrypt/live/{{ $hostname }}/privkey.pem;
+    ssl_trusted_certificate /etc/letsencrypt/live/{{ $hostname }}/chain.pem;
+    @else
+    # Not configured
+    @endif
+    return                  301 https://{{ $hostname }}$request_uri;
+}
+
+@if(!$ssl)
+# HTTP redirect
+server {
+    listen      80;
+    listen      [::]:80;
+    server_name .{{ $hostname }};
+    include     globals/letsencrypt.conf;
+
+    location / {
+        return 301 https://{{ $hostname }}$request_uri;
+    }
+}
+@endif

@@ -1,0 +1,59 @@
+<?php
+
+namespace App\Commands;
+
+use App\Models\Host;
+use App\Models\Server;
+use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Support\Facades\DB;
+use LaravelZero\Framework\Commands\Command;
+
+class HostList extends Command
+{
+    /**
+     * The signature of the command.
+     *
+     * @var string
+     */
+    protected $signature = 'host:list
+                            {--server=} The server to connect to
+                            ';
+
+    /**
+     * The description of the command.
+     *
+     * @var string
+     */
+    protected $description = 'List enabled nginx host on a server';
+
+    /**
+     * Execute the console command.
+     *
+     * @return mixed
+     */
+    public function handle()
+    {
+        $host = Host::select('name as hostname', 'root', 'server_id')->with('server:id,name,ip')->get();
+
+        $this->table(
+       ['Hostname', 'Root', 'Sever Name', 'Server IP'],
+          $host->map(function($host) {
+                    return collect($host->toArray())
+                        ->merge($host->server->toArray())
+                        ->only(['hostname', 'root', 'name', 'ip']);
+                })
+        );
+
+    }
+
+    /**
+     * Define the command's schedule.
+     *
+     * @param  \Illuminate\Console\Scheduling\Schedule $schedule
+     * @return void
+     */
+    public function schedule(Schedule $schedule): void
+    {
+        // $schedule->command(static::class)->everyMinute();
+    }
+}

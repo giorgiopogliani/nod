@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Server extends Model
 {
@@ -38,6 +39,29 @@ class Server extends Model
         'created_at' => 'datetime:Y-m-d H:i:s',
         'updated_at' => 'datetime:Y-m-d H:i:s'
     ];
+
+
+    /**
+     * Hosts relation.
+     *
+     * @return HasMany
+     */
+    public function hosts()
+    {
+        return $this->hasMany(Host::class);
+    }
+
+    /**
+     * Get server by name.
+     *
+     * @param mixed $query
+     * @param mixed $name
+     * @return void
+     */
+    public function scopeByName($query, $name)
+    {
+        return $query->where('name', $name)->first();
+    }
 
     /**
      * Check ssh credentials
