@@ -3,8 +3,8 @@ server {
     listen                  443 ssl http2;
     listen                  [::]:443 ssl http2;
     @else
-    listen                  80 http2;
-    listen                  [::]:80 http2;
+    listen                  80;
+    listen                  [::]:80;
     @endif
     server_name             {{ $hostname }};
     root                    {{ $root }};

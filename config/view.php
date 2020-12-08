@@ -14,7 +14,7 @@ return [
     */
 
     'paths' => [
-        base_path('templates'),
+        env('VIEW_PATH', base_path('templates')),
     ],
 
     /*

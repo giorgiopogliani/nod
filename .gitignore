@@ -5,3 +5,5 @@
 cache
 .phpunit.result.cache
 /database/database.sqlite
+.env
+builds

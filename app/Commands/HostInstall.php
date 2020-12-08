@@ -2,6 +2,7 @@
 
 namespace App\Commands;
 
+use App\Models\Host;
 use Illuminate\Console\Scheduling\Schedule;
 use LaravelZero\Framework\Commands\Command;
 
@@ -12,7 +13,7 @@ class HostInstall extends Command
      *
      * @var string
      */
-    protected $signature = 'host:install';
+    protected $signature = 'host:install {--id=}';
 
     /**
      * The description of the command.
@@ -28,11 +29,23 @@ class HostInstall extends Command
      */
     public function handle()
     {
-        echo view('nginx.site', [
+        $host = Host::findOrFail($this->option('id'));
+
+        $config = view('nginx.site', [
             'ssl' => false,
-            'hostname' => 'test.com',
-            'root' => '/home/projects/'
+            'hostname' => $host->name,
+            'root' => $host->root,
         ]);
+
+        $host->server->transferStringAsFile($config, "/etc/nginx/sites-available/{$host->name}");
+
+        if ($this->confirm('Transfer sample index.php in the document root?')) {
+            $host->server->transferStringAsFile(<<<TXT
+            <?php
+            phpinfo();
+
+            TXT, "{$host->root}/index.php");
+        }
     }
 
     /**

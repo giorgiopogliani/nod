@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\File;
 
 class Server extends Model
 {
@@ -64,16 +65,51 @@ class Server extends Model
     }
 
     /**
-     * Check ssh credentials
+     * Create the temporary file of the private key.
+     *
+     * @return void
      */
-    public function checkCredentials($username, $key): bool
+    public function checkOrConfigurePrivateKey()
     {
-        sleep(1);
-        return true;
+        File::isWritable("/tmp/nod.server.{$this->id}.key");
+
+        shell_exec("echo '{$this->private_key}' > /tmp/nod.server.{$this->id}.key");
+
+        File::chmod("/tmp/nod.server.{$this->id}.key", 0600);
+    }
+
+    /**
+     * Return the temporary path of the private key.
+     *
+     * @return string
+     */
+    public function getPrivateKeyPath()
+    {
+        return "/tmp/nod.server.{$this->id}.key";
+    }
+
+    /**
+     * Pass commands the you want exec on the server through ssh.
+     *
+     * @param mixed $cmd
+     * @return string|null
+     */
+    public function exec($cmd)
+    {
+        return shell_exec("ssh {$this->username}@{$this->ip} -i /tmp/nod.server.{$this->id}.key " . $cmd);
     }
 
     /**
      * Check ssh credentials
+     */
+    public function checkCredentials($username, $key): bool
+    {
+        /** TODO: */
+        return true;
+    }
+
+    /**
+     * Check ssh credentials and update server details
      */
     public function checkCredentialsAndUpdate($username, $key): bool
     {
@@ -88,5 +124,18 @@ class Server extends Model
 
             return true;
         }
+    }
+
+    /**
+     *
+     * @return void
+     */
+    public function transferStringAsFile($contents, $path)
+    {
+        $temp = saveStringAsTempFile($contents);
+
+        $this->checkOrConfigurePrivateKey();
+
+        shell_exec("scp -i /tmp/nod.server.{$this->id}.key $temp {$this->username}@{$this->ip}:$path");
     }
 }
