@@ -33,14 +33,14 @@ class HostList extends Command
      */
     public function handle()
     {
-        $host = Host::select('name as hostname', 'root', 'server_id')->with('server:id,name,ip')->get();
+        $host = Host::select('id as hostid','name as hostname', 'base', 'root', 'server_id')->with('server:id,name,ip')->get();
 
         $this->table(
-       ['Hostname', 'Root', 'Sever Name', 'Server IP'],
+       ['ID', 'Hostname', 'Base', 'Root', 'Sever Name', 'Server IP'],
           $host->map(function($host) {
                     return collect($host->toArray())
                         ->merge($host->server->toArray())
-                        ->only(['hostname', 'root', 'name', 'ip']);
+                        ->only(['hostid', 'hostname', 'base', 'root', 'name', 'ip']);
                 })
         );
 

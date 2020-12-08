@@ -3,18 +3,18 @@
 namespace App\Commands;
 
 use App\Models\Host;
-use App\Models\Server;
 use Illuminate\Console\Scheduling\Schedule;
 use LaravelZero\Framework\Commands\Command;
 
-class HostMake extends Command
+class HostUpdate extends Command
 {
     /**
      * The signature of the command.
      *
      * @var string
      */
-    protected $signature = 'host:make
+    protected $signature = 'host:update
+                            {id} The ID of the host to update
                             {--server=} The server name for this host (required)
                             {--name=} The hostname (required)
                             {--base=} The base path for this hosts (required)
@@ -26,7 +26,7 @@ class HostMake extends Command
      *
      * @var string
      */
-    protected $description = 'Create a new host';
+    protected $description = 'Command description';
 
     /**
      * Execute the console command.
@@ -35,11 +35,25 @@ class HostMake extends Command
      */
     public function handle()
     {
-        Server::byName($this->option('server'))->hosts()->create([
-            'name' => $this->option('name'),
-            'base' => $this->option('base'),
-            'root' => $this->option('root'),
-        ]);
+        $host = Host::findOrFail($this->argument('id'));
+
+        if ($this->option('server')) {
+            $host->update(['server' => $this->option('server') ]);
+        }
+
+        if ($this->option('name')) {
+            $host->update(['name' => $this->option('name') ]);
+        }
+
+        if ($this->option('base')) {
+            $host->update(['base' => $this->option('base') ]);
+        }
+
+        if ($this->option('root')) {
+            $host->update(['root' => $this->option('root') ]);
+        }
+
+        $this->info('done!');
     }
 
     /**

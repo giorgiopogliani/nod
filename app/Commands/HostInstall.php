@@ -37,7 +37,13 @@ class HostInstall extends Command
             'root' => $host->root,
         ]);
 
-        $host->server->transferStringAsFile($config, "/etc/nginx/sites-available/{$host->name}");
+        $this->info('Transfering nginx configuration');
+
+        $host->server->transferStringAsFile($config, "/etc/nginx/sites-available/{$host->name}.conf");
+
+        $this->info('Creating document root');
+
+        $host->server->exec("mkdir -p {$host->root}");
 
         if ($this->confirm('Transfer sample index.php in the document root?')) {
             $host->server->transferStringAsFile(<<<TXT
@@ -45,7 +51,14 @@ class HostInstall extends Command
             phpinfo();
 
             TXT, "{$host->root}/index.php");
+
+            $this->info('Sample file created');
         }
+        $this->info('Activaiting host file');
+
+        $host->server->exec("ln -sf /etc/nginx/sites-available/{$host->name}.conf /etc/nginx/sites-enabled/{$host->name}.conf");
+
+        $this->info('done!');
     }
 
     /**

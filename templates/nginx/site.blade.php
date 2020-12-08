@@ -7,20 +7,28 @@ server {
     listen                  [::]:80;
     @endif
     server_name             {{ $hostname }};
+    set $base               {{ $base }};
     root                    {{ $root }};
 
     # SSL
     @if($ssl)
-    ssl_certificate         /etc/letsencrypt/live/{{ $hostname }}/fullchain.pem;
-    ssl_certificate_key     /etc/letsencrypt/live/{{ $hostname }}/privkey.pem;
-    ssl_trusted_certificate /etc/letsencrypt/live/{{ $hostname }}/chain.pem;
+    ssl_certificate           /etc/letsencrypt/live/{{ $hostname }}/fullchain.pem;
+    ssl_certificate_key       /etc/letsencrypt/live/{{ $hostname }}/privkey.pem;
+    ssl_trusted_certificate   /etc/letsencrypt/live/{{ $hostname }}/chain.pem;
     @endif
 
     # security
-    include                 globals/security.conf;
+    include                  globals/security.conf;
+
+    # logs
+    error_log                $base/logs/error.log warn;
+    access_log               $base/logs/access.log;
 
     # index.php
     index                   index.php;
+
+    # charset
+    charset                 utf-8;
 
     # index.php fallback
     location / {
@@ -28,14 +36,16 @@ server {
     }
 
     # additional config
-    include globals/general.conf;
+    include                 globals/compression.conf;
+    include                 globals/general.conf;
 
     # handle .php
     location ~ \.php$ {
-        include globals/php7.4_fastcgi.conf;
+        include globals/php7.4-fastcgi.conf;
     }
 }
 
+@if($ssl)
 # subdomains redirect
 server {
     listen                  443 ssl http2;
@@ -43,15 +53,13 @@ server {
     server_name             *.{{ $hostname }};
 
     # SSL
-    @if($ssl)
-    ssl_certificate         /etc/letsencrypt/live/{{ $hostname }}/fullchain.pem;
-    ssl_certificate_key     /etc/letsencrypt/live/{{ $hostname }}/privkey.pem;
-    ssl_trusted_certificate /etc/letsencrypt/live/{{ $hostname }}/chain.pem;
-    @else
-    # Not configured
-    @endif
+    ssl_certificate          /etc/letsencrypt/live/{{ $hostname }}/fullchain.pem;
+    ssl_certificate_key      /etc/letsencrypt/live/{{ $hostname }}/privkey.pem;
+    ssl_trusted_certificate  /etc/letsencrypt/live/{{ $hostname }}/chain.pem;
+
     return                  301 https://{{ $hostname }}$request_uri;
 }
+@endif
 
 @if(!$ssl)
 # HTTP redirect
