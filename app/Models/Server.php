@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\Script;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -97,6 +98,17 @@ class Server extends Model
     public function exec($cmd)
     {
         return shell_exec("ssh {$this->username}@{$this->ip} -i /tmp/nod.server.{$this->id}.key " . $cmd);
+    }
+
+    /**
+     * Return object to append all commands and
+     * send all in one go.
+     *
+     * @return void
+     */
+    public function prepareSsh()
+    {
+        return new Script($this);
     }
 
     /**

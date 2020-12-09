@@ -13,7 +13,7 @@ class HostInstall extends Command
      *
      * @var string
      */
-    protected $signature = 'host:install {--id=}';
+    protected $signature = 'host:install {id} {--ssl}';
 
     /**
      * The description of the command.
@@ -29,13 +29,16 @@ class HostInstall extends Command
      */
     public function handle()
     {
-        $host = Host::findOrFail($this->option('id'));
+        $host = Host::findOrFail($this->argument('id'));
 
         $config = view('nginx.site', [
-            'ssl' => false,
+            'ssl' => $this->option('ssl'),
             'hostname' => $host->name,
+            'base' => $host->base,
             'root' => $host->root,
         ]);
+
+        $script = $host->server->prepareSsh();
 
         $this->info('Transfering nginx configuration');
 
@@ -43,7 +46,7 @@ class HostInstall extends Command
 
         $this->info('Creating document root');
 
-        $host->server->exec("mkdir -p {$host->root}");
+        $host->server->exec("mkdir -p {{$host->base},{$host->base}/logs,{$host->root}}");
 
         if ($this->confirm('Transfer sample index.php in the document root?')) {
             $host->server->transferStringAsFile(<<<TXT
@@ -54,9 +57,22 @@ class HostInstall extends Command
 
             $this->info('Sample file created');
         }
+
         $this->info('Activaiting host file');
 
-        $host->server->exec("ln -sf /etc/nginx/sites-available/{$host->name}.conf /etc/nginx/sites-enabled/{$host->name}.conf");
+        $script->add("ln -sf /etc/nginx/sites-available/{$host->name}.conf /etc/nginx/sites-enabled/{$host->name}.conf");
+
+        $script->add("chown www-data:www-data -R {$host->base} && echo 'Updated owners'");
+
+        $script->add("find {$host->base} -type f -exec chmod 644 {} \; && echo 'Updated folder permissions'");
+
+        $script->add("find {$host->base} -type d -exec chmod 755 {} \; && echo 'Updated files permissions'");
+
+        $script->execute();
+
+        if ($this->confirm('Check configuration and relaod nginx?')) {
+            $host->server->exec('nginx -t && systemctl reload nginx');
+        }
 
         $this->info('done!');
     }

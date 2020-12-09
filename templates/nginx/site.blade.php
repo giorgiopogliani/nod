@@ -6,6 +6,7 @@ server {
     listen                  80;
     listen                  [::]:80;
     @endif
+
     server_name             {{ $hostname }};
     set $base               {{ $base }};
     root                    {{ $root }};
@@ -21,8 +22,8 @@ server {
     include                  globals/security.conf;
 
     # logs
-    error_log                $base/logs/error.log warn;
-    access_log               $base/logs/access.log;
+    error_log                {{ $base }}/logs/error.log warn;
+    access_log               {{ $base }}/logs/access.log;
 
     # index.php
     index                   index.php;
@@ -61,7 +62,7 @@ server {
 }
 @endif
 
-@if(!$ssl)
+@if($ssl)
 # HTTP redirect
 server {
     listen      80;
