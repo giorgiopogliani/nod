@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\Spinner;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
@@ -28,4 +29,16 @@ function saveStringAsTempFile($contents)
     File::chmod($path, 0600);
 
     return $path;
+}
+
+
+function step($message, $callback)
+{
+    $spinner = new Spinner();
+
+    $spinner->start($message);
+
+    $spinner->callback($callback);
+
+    $spinner->run();
 }

@@ -38,40 +38,42 @@ class HostInstall extends Command
             'root' => $host->root,
         ]);
 
-        $script = $host->server->prepareSsh();
+        step('Transfering configuration...', function () use ($host, $config) {
+            $host->server->transferStringAsFile($config, "/etc/nginx/sites-available/{$host->name}.conf");
+        });
 
-        $this->info('Transfering nginx configuration');
-
-        $host->server->transferStringAsFile($config, "/etc/nginx/sites-available/{$host->name}.conf");
-
-        $this->info('Creating document root');
-
-        $host->server->exec("mkdir -p {{$host->base},{$host->base}/logs,{$host->root}}");
+        step('Creating directories...', function () use ($host, $config) {
+            $host->server->exec("mkdir -p {{$host->base},{$host->base}/logs,{$host->root}}");
+        });
 
         if ($this->confirm('Transfer sample index.php in the document root?')) {
-            $host->server->transferStringAsFile(<<<TXT
-            <?php
-            phpinfo();
+            step('Transfering sample...', function () use ($host, $config) {
+                $host->server->transferStringAsFile(<<<TXT
+                <?php
+                phpinfo();
 
-            TXT, "{$host->root}/index.php");
-
-            $this->info('Sample file created');
+                TXT, "{$host->root}/index.php");
+            });
         }
 
-        $this->info('Activaiting host file');
+        step('Preparing hosts and permissions...', function () use ($host, $config) {
+            $script = $host->server->prepareSsh();
 
-        $script->add("ln -sf /etc/nginx/sites-available/{$host->name}.conf /etc/nginx/sites-enabled/{$host->name}.conf");
+            $script->add("ln -sf /etc/nginx/sites-available/{$host->name}.conf /etc/nginx/sites-enabled/{$host->name}.conf");
 
-        $script->add("chown www-data:www-data -R {$host->base} && echo 'Updated owners'");
+            $script->add("chown www-data:www-data -R {$host->base}");
 
-        $script->add("find {$host->base} -type f -exec chmod 644 {} \; && echo 'Updated folder permissions'");
+            $script->add("find {$host->base} -type f -exec chmod 644 {} \;");
 
-        $script->add("find {$host->base} -type d -exec chmod 755 {} \; && echo 'Updated files permissions'");
+            $script->add("find {$host->base} -type d -exec chmod 755 {} \;");
 
-        $script->execute();
+            $script->execute();
+        });
 
         if ($this->confirm('Check configuration and relaod nginx?')) {
-            $host->server->exec('nginx -t && systemctl reload nginx');
+            step('Reloading...', function () use ($host) {
+                $host->server->exec("'nginx -t && /bin/systemctl reload nginx'");
+            });
         }
 
         $this->info('done!');

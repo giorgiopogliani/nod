@@ -27,9 +27,9 @@ class Script
         $text = implode("\n", $this->commands);
 
         $this->server->exec(<<<TXT
-        << EOF
+        '
         $text
-        EOF
+        '
         TXT);
     }
 }

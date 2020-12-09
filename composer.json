@@ -19,7 +19,10 @@
         "php": "^7.3",
         "illuminate/database": "^8.0",
         "illuminate/view": "^8.17",
-        "laravel-zero/framework": "^8.0"
+        "laravel-zero/framework": "^8.0",
+        "react/event-loop": "^1.1.1",
+        "react/promise": "^2.8",
+        "spatie/async": "^1.5"
     },
     "require-dev": {
         "fzaninotto/faker": "^1.9",
