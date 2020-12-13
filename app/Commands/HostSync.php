@@ -30,7 +30,7 @@ class HostSync extends Command
      */
     public function handle()
     {
-        $config = json_decode(file_get_contents(getcwd() . '/nod.config.json'));
+        $config = Nod::getConfig();
 
         if (! Nod::validate($config)) {
             $this->error('Error: config not valid');
@@ -45,12 +45,13 @@ class HostSync extends Command
         $host->server->checkOrConfigurePrivateKey();
 
         $args = [
-            "-r",
+            "-rz",
+            "-v",
+            "--chown=www-data:www-data",
+            "-e", "ssh -i '{$host->server->getPrivateKeyPath()}'",
+            "--filter", ':- .gitignore',
             "--delete",
             "--update",
-            "-v",
-            "-e",
-            "\"ssh -i '{$host->server->getPrivateKeyPath()}'\"",
             "./",
             "{$host->server->username}@{$host->server->ip}:{$host->base}{$config->upload}/"
         ];
@@ -60,13 +61,13 @@ class HostSync extends Command
         }
 
         if (0 === $pid) {
-            pcntl_exec('/usr/bin/rsync', $args);
+            pcntl_exec('/usr/local/bin/rsync', $args);
             exit;
         }
 
         pcntl_wait($status);
 
-        $this->info('done: ' . $status);
+        $this->info('rsync exited with status: ' . $status);
     }
 
     /**
