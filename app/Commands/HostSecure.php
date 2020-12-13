@@ -2,29 +2,26 @@
 
 namespace App\Commands;
 
-use App\Models\Server;
+use App\Models\Host;
 use Illuminate\Console\Scheduling\Schedule;
 use LaravelZero\Framework\Commands\Command;
+use Performing\Wait\Spinner;
 
-class ServerUpdate extends Command
+class HostSecure extends Command
 {
     /**
      * The signature of the command.
      *
      * @var string
      */
-    protected $signature = 'server:update
-                            {name}
-                            {--username=}
-                            {--ip=}
-                            ';
+    protected $signature = 'host:secure {id}';
 
     /**
      * The description of the command.
      *
      * @var string
      */
-    protected $description = 'Update server details';
+    protected $description = 'Create a certificate with letsencrypt';
 
     /**
      * Execute the console command.
@@ -33,17 +30,11 @@ class ServerUpdate extends Command
      */
     public function handle()
     {
-        $server = Server::where('name', $this->argument('name'))->first();
+        $host = Host::findOrFail($this->argument('id'));
 
-        if ($this->option('username')) {
-            $server->update([ 'username' => $this->option('username') ]);
-        }
+        $this->info('Connecting to server');
 
-        if ($this->option('ip')) {
-            $server->update([ 'ip' => $this->option('ip') ]);
-        }
-
-        $this->info('Server updated!');
+        $host->server->exec("certbot certonly -d {$host->name} --nginx");
     }
 
     /**

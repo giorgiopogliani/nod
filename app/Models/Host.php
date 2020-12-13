@@ -6,6 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property Server $server
+ *
+ * @package App\Models
+ */
 class Host extends Model
 {
     use HasFactory;
@@ -28,5 +33,17 @@ class Host extends Model
     public function server(): BelongsTo
     {
         return $this->belongsTo(Server::class);
+    }
+
+    /**
+     * Get host by name.
+     *
+     * @param mixed $query
+     * @param mixed $name
+     * @return void
+     */
+    public function scopeByName($query, $name)
+    {
+        return $query->where('name', $name)->first();
     }
 }

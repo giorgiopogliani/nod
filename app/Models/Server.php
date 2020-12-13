@@ -72,11 +72,11 @@ class Server extends Model
      */
     public function checkOrConfigurePrivateKey()
     {
-        File::isWritable("/tmp/nod.server.{$this->id}.key");
+        File::isWritable($this->getPrivateKeyPath());
 
-        shell_exec("echo '{$this->private_key}' > /tmp/nod.server.{$this->id}.key");
+        shell_exec("echo '{$this->private_key}' > {$this->getPrivateKeyPath()}");
 
-        File::chmod("/tmp/nod.server.{$this->id}.key", 0600);
+        File::chmod($this->getPrivateKeyPath(), 0600);
     }
 
     /**
@@ -97,14 +97,14 @@ class Server extends Model
      */
     public function exec($cmd)
     {
-        return shell_exec("ssh {$this->username}@{$this->ip} -i /tmp/nod.server.{$this->id}.key " . $cmd);
+        return shell_exec("ssh {$this->username}@{$this->ip} -i {$this->getPrivateKeyPath()} " . $cmd);
     }
 
     /**
      * Return object to append all commands and
      * send all in one go.
      *
-     * @return void
+     * @return App\Support\Script
      */
     public function prepareSsh()
     {
@@ -148,6 +148,6 @@ class Server extends Model
 
         $this->checkOrConfigurePrivateKey();
 
-        shell_exec("scp -i /tmp/nod.server.{$this->id}.key $temp {$this->username}@{$this->ip}:$path");
+        shell_exec("scp -i {$this->getPrivateKeyPath()} $temp {$this->username}@{$this->ip}:$path");
     }
 }

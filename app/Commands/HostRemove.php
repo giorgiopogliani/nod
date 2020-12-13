@@ -2,29 +2,25 @@
 
 namespace App\Commands;
 
-use App\Models\Server;
+use App\Models\Host;
 use Illuminate\Console\Scheduling\Schedule;
 use LaravelZero\Framework\Commands\Command;
 
-class ServerUpdate extends Command
+class HostRemove extends Command
 {
     /**
      * The signature of the command.
      *
      * @var string
      */
-    protected $signature = 'server:update
-                            {name}
-                            {--username=}
-                            {--ip=}
-                            ';
+    protected $signature = 'host:remove {id}';
 
     /**
      * The description of the command.
      *
      * @var string
      */
-    protected $description = 'Update server details';
+    protected $description = 'Remove host by id';
 
     /**
      * Execute the console command.
@@ -33,17 +29,14 @@ class ServerUpdate extends Command
      */
     public function handle()
     {
-        $server = Server::where('name', $this->argument('name'))->first();
+        $host = Host::findOrFail($this->argument('id'));
 
-        if ($this->option('username')) {
-            $server->update([ 'username' => $this->option('username') ]);
+        if ($this->confirm("Are you sure? This will delete host $host->name")) {
+            $host->delete();
+            $this->info('Host deleted');
+        } else {
+            $this->warn('Host not deleted');
         }
-
-        if ($this->option('ip')) {
-            $server->update([ 'ip' => $this->option('ip') ]);
-        }
-
-        $this->info('Server updated!');
     }
 
     /**

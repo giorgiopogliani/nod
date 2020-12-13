@@ -15,6 +15,12 @@ class Script
         $this->server = $server;
     }
 
+    /**
+     * Add command to execution
+     *
+     * @param string $command
+     * @return $this
+     */
     public function add(string $command)
     {
         $this->commands[] = $command;
@@ -22,6 +28,10 @@ class Script
         return $this;
     }
 
+    /**
+     * Execute all commands
+     * @return void
+     */
     public function execute()
     {
         $text = implode("\n", $this->commands);

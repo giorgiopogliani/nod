@@ -47,7 +47,7 @@ class ServerSetup extends Command
         if ($success) {
             $this->info('Setup successul!');
         }else {
-            $this->error('Uh! something is wrong! Check your credenrials');
+            $this->error('Uh! something is wrong! Check your credentials');
         }
     }
 

@@ -29,6 +29,7 @@ class HostInstall extends Command
      */
     public function handle()
     {
+        /** @var Host $host */
         $host = Host::findOrFail($this->argument('id'));
 
         $config = view('nginx.site', [
@@ -38,16 +39,16 @@ class HostInstall extends Command
             'root' => $host->root,
         ]);
 
-        step('Transfering configuration...', function () use ($host, $config) {
+        wait('Transfering configuration...', function () use ($host, $config) {
             $host->server->transferStringAsFile($config, "/etc/nginx/sites-available/{$host->name}.conf");
         });
 
-        step('Creating directories...', function () use ($host, $config) {
+        wait('Creating directories...', function () use ($host) {
             $host->server->exec("mkdir -p {{$host->base},{$host->base}/logs,{$host->root}}");
         });
 
         if ($this->confirm('Transfer sample index.php in the document root?')) {
-            step('Transfering sample...', function () use ($host, $config) {
+            wait('Transfering sample...', function () use ($host) {
                 $host->server->transferStringAsFile(<<<TXT
                 <?php
                 phpinfo();
@@ -56,7 +57,7 @@ class HostInstall extends Command
             });
         }
 
-        step('Preparing hosts and permissions...', function () use ($host, $config) {
+        wait('Preparing hosts and permissions...', function () use ($host) {
             $script = $host->server->prepareSsh();
 
             $script->add("ln -sf /etc/nginx/sites-available/{$host->name}.conf /etc/nginx/sites-enabled/{$host->name}.conf");
@@ -71,7 +72,7 @@ class HostInstall extends Command
         });
 
         if ($this->confirm('Check configuration and relaod nginx?')) {
-            step('Reloading...', function () use ($host) {
+            wait('Reloading...', function () use ($host) {
                 $host->server->exec("'nginx -t && /bin/systemctl reload nginx'");
             });
         }

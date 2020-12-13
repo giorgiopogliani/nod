@@ -30,15 +30,3 @@ function saveStringAsTempFile($contents)
 
     return $path;
 }
-
-
-function step($message, $callback)
-{
-    $spinner = new Spinner();
-
-    $spinner->start($message);
-
-    $spinner->callback($callback);
-
-    $spinner->run();
-}

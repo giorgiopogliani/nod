@@ -35,11 +35,17 @@ class HostMake extends Command
      */
     public function handle()
     {
-        Server::byName($this->option('server'))->hosts()->create([
+        $host = Server::byName($this->option('server'))->hosts()->create([
             'name' => $this->option('name'),
             'base' => $this->option('base'),
             'root' => $this->option('root'),
         ]);
+
+        if ($host) {
+            $this->info('Cretead ' . $host->name);
+        } else {
+            $this->error('Error');
+        }
     }
 
     /**
