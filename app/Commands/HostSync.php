@@ -42,11 +42,12 @@ class HostSync extends Command
             $this->error('Error: host not found');
         }
 
+        $host->server->checkOrConfigurePrivateKey();
+
         $args = [
             "-r",
             "--delete",
             "--update",
-            "--filter=':- .gitignore'",
             "-v",
             "-e",
             "\"ssh -i '{$host->server->getPrivateKeyPath()}'\"",
@@ -59,7 +60,7 @@ class HostSync extends Command
         }
 
         if (0 === $pid) {
-            pcntl_exec('rsync', $args);
+            pcntl_exec('/usr/bin/rsync', $args);
             exit;
         }
 
