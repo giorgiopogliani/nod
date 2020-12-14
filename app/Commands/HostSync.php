@@ -44,6 +44,8 @@ class HostSync extends Command
 
         $host->server->checkOrConfigurePrivateKey();
 
+        $upload = str($host->base . '/' . $config->upload . '/')->replace('//', '/');
+
         $args = [
             "-rz",
             "-v",
@@ -53,7 +55,7 @@ class HostSync extends Command
             "--delete",
             "--update",
             "./",
-            "{$host->server->username}@{$host->server->ip}:{$host->base}{$config->upload}/"
+            "{$host->server->username}@{$host->server->ip}:$upload"
         ];
 
         if (-1 === ($pid = pcntl_fork())) {
