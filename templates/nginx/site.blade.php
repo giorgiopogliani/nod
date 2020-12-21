@@ -13,9 +13,15 @@ server {
 
     # SSL
     @if($ssl)
-    ssl_certificate           /etc/letsencrypt/live/{{ $hostname }}/fullchain.pem;
-    ssl_certificate_key       /etc/letsencrypt/live/{{ $hostname }}/privkey.pem;
-    ssl_trusted_certificate   /etc/letsencrypt/live/{{ $hostname }}/chain.pem;
+        @if($sslpath)
+            ssl_certificate           {{ $sslpath }}/fullchain.pem;
+            ssl_certificate_key       {{ $sslpath }}/privkey.pem;
+            ssl_trusted_certificate   {{ $sslpath }}/chain.pem;
+        @else
+            ssl_certificate           /etc/letsencrypt/live/{{ $hostname }}/fullchain.pem;
+            ssl_certificate_key       /etc/letsencrypt/live/{{ $hostname }}/privkey.pem;
+            ssl_trusted_certificate   /etc/letsencrypt/live/{{ $hostname }}/chain.pem;
+        @endif
     @endif
 
     # security
@@ -54,9 +60,17 @@ server {
     server_name             *.{{ $hostname }};
 
     # SSL
-    ssl_certificate          /etc/letsencrypt/live/{{ $hostname }}/fullchain.pem;
-    ssl_certificate_key      /etc/letsencrypt/live/{{ $hostname }}/privkey.pem;
-    ssl_trusted_certificate  /etc/letsencrypt/live/{{ $hostname }}/chain.pem;
+    @if($ssl)
+        @if($sslpath)
+            ssl_certificate           {{ $sslpath }}/fullchain.pem;
+            ssl_certificate_key       {{ $sslpath }}/privkey.pem;
+            ssl_trusted_certificate   {{ $sslpath }}/chain.pem;
+        @else
+            ssl_certificate           /etc/letsencrypt/live/{{ $hostname }}/fullchain.pem;
+            ssl_certificate_key       /etc/letsencrypt/live/{{ $hostname }}/privkey.pem;
+            ssl_trusted_certificate   /etc/letsencrypt/live/{{ $hostname }}/chain.pem;
+        @endif
+    @endif
 
     return                  301 https://{{ $hostname }}$request_uri;
 }

@@ -69,6 +69,10 @@ class HostSync extends Command
 
         pcntl_wait($status);
 
+        $this->notify('Sync Completed', $host->hostname);
+
+        echo PHP_EOL;
+
         $this->info('rsync exited with status: ' . $status);
     }
 

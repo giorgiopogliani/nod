@@ -33,16 +33,22 @@ class HostList extends Command
      */
     public function handle()
     {
-        $host = Host::select('id as hostid','name as hostname', 'base', 'root', 'server_id')->with('server:id,name,ip')->get();
+        $hosts = Host::select('id as hostid','name as hostname', 'base', 'root', 'server_id')->with('server:id,name,ip')->get();
 
-        $this->table(
-       ['ID', 'Hostname', 'Base', 'Root', 'Sever Name', 'Server IP'],
-          $host->map(function($host) {
-                    return collect($host->toArray())
-                        ->merge($host->server->toArray())
-                        ->only(['hostid', 'hostname', 'base', 'root', 'name', 'ip']);
-                })
-        );
+        $hosts = $hosts->map(function($host) {
+            return collect($host->toArray())
+                ->merge($host->server->toArray())
+                ->only(['hostid', 'hostname', 'base', 'root', 'name', 'ip']);
+        });
+
+        foreach($hosts as $host) {
+            $this->output->writeln('----------');
+            $this->output->writeln('Host: <info>' . $host['hostname'] . '</info> (' . $host['hostid']  .') ');
+            $this->output->writeln('Server: ' . "<info>{$host['name']}</info>" . ' on ' . "<info>{$host['ip']}</info>");
+            $this->output->writeln('Base: ' . $host['base']);
+            $this->output->writeln('Root: ' . $host['root']);
+        }
+        $this->output->writeln('----------');
 
     }
 

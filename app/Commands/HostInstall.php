@@ -13,7 +13,7 @@ class HostInstall extends Command
      *
      * @var string
      */
-    protected $signature = 'host:install {id} {--ssl}';
+    protected $signature = 'host:install {id} {--ssl} {--sslpath=}';
 
     /**
      * The description of the command.
@@ -37,6 +37,7 @@ class HostInstall extends Command
             'hostname' => $host->name,
             'base' => $host->base,
             'root' => $host->root,
+            'sslpath' => $this->option('sslpath')
         ]);
 
         wait('Transfering configuration...', function () use ($host, $config) {
