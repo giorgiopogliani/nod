@@ -35,11 +35,23 @@ You can pass `--ssl` to guess ssl certificate location when using letsencrypt. O
 ```
 nod host:install 1 # id of the created host
 ```
+
 ## Start an SSH shell 
 Setup your credentials
 ```
 nod server:shell ServerName
 ```
+
+## Next Level
+Update your shell prompt to read the nod.config.json so you will always know for sure the host you will sync. I use fish so here my fish version.
+```fish
+function fish_prompt
+    if test -e nod.config.json 
+        echo " $green("(jq -r '.host' nod.config.json)')'$normal
+    end
+end
+```
+
 
 ------
 
