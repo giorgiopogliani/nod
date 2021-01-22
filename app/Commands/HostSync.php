@@ -46,17 +46,17 @@ class HostSync extends Command
 
         $upload = str($host->base . '/' . $config->upload . '/')->replace('//', '/');
 
-        $args = [
+        $args = array_filter([
             "-rz",
             "-v",
             "--chown=www-data:www-data",
             "-e", "ssh -i '{$host->server->getPrivateKeyPath()}'",
             "--filter", ':- .gitignore',
-            "--delete",
+            is_null($config->delete) || $config->delete === true ? "--delete" : null,
             "--update",
             "./",
             "{$host->server->username}@{$host->server->ip}:$upload"
-        ];
+        ]);
 
         if (-1 === ($pid = pcntl_fork())) {
             throw new \Exception('Unable to fork a new process.');
@@ -69,7 +69,7 @@ class HostSync extends Command
 
         pcntl_wait($status);
 
-        // $this->notify('Sync Completed', $host->hostname);
+        $this->notify("Sync with {$host->name} completed", $host->server->name, null);
 
         echo PHP_EOL;
 

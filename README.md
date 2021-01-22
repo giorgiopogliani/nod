@@ -5,9 +5,11 @@ A simple cli to manage servers and server keys.
 
 - [x] create servers 
 - [x] connect to a server with simple command
+- [x] configure new projects/website with default nignx configuration
+- [x] sync projects files to remote (rsync)
+- [x] watch and sync for changes projects files (--watch)
 - [ ] multiple keys for a server (?)
 - [ ] multiple users for a server (?)
-- [ ] configure new projects/website with default nignx configuration
 - [ ] configure common stuff like users, php, mysql
 - [ ] download backups
 
